@@ -10,8 +10,19 @@
 import configparser
 import logging
 
+from sklearn.utils import Bunch
 
-def get_config(config_path="../configs/data.ini"):
-    config = configparser.ConfigParser()
-    logging.info(f" Loading config file {config_path}...")
-    config.read(config_path)
+from utils.variable_util import TRAIN, TEST
+
+
+class Configer():
+
+    def __init__(self, config_path):
+        self.config = configparser.ConfigParser()
+        logging.info(f" Loading config file {config_path}...")
+        self.config.read(config_path)
+
+    def load_config(self, mode=TRAIN):
+        if mode not in [TRAIN, TEST]:
+            raise ValueError(f'Expected mode in ["train","test"], but got {mode}')
+        return Bunch(**self.config[mode])

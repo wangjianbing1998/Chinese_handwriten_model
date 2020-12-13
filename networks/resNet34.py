@@ -61,14 +61,14 @@ class ResNet34(BaseModel):
             return add([inputs, conv2])
 
     def __init__(self, target_size=[224, 224, 3], nb_classes=8):
-        model = self.build_model(target_size=target_size, nb_classes=nb_classes)
+        self.model = self.build_model(target_size=target_size, nb_classes=nb_classes)
         # Print the detail of the model
-        model.summary()
+        self.model.summary()
         # compile the model
-        model.compile(optimizer='adam',
-                      loss='categorical_crossentropy',
-                      metrics=['acc', top_k_categorical_accuracy])
-        plot_model(model, to_file='C:/Users/12394/PycharmProjects/Keras/model_ResNet-34.png')
+        self.model.compile(optimizer='adam',
+                           loss='categorical_crossentropy',
+                           metrics=['acc', top_k_categorical_accuracy])
+        plot_model(self.model, to_file='networks/model_ResNet-34.png')
 
     def build_model(self, target_size, nb_classes=8):
         inputs = Input(shape=target_size)
