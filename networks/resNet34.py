@@ -14,13 +14,12 @@ better_exceptions.hook()
 from keras.layers import Conv2D, BatchNormalization, Dense, Flatten,\
     MaxPooling2D, AveragePooling2D, ZeroPadding2D, Input, add
 from keras.models import Model
-from keras.utils import plot_model
-from keras.metrics import top_k_categorical_accuracy
-
-
 
 
 class ResNet34(BaseModel):
+
+    def __init__(self, input_shape, nb_classes):
+        super(ResNet34, self).__init__(input_shape=input_shape, nb_classes=nb_classes)
 
     def _conv_block(self, inputs,
                     neuron_num,
@@ -60,18 +59,8 @@ class ResNet34(BaseModel):
         else:
             return add([inputs, conv2])
 
-    def __init__(self, target_size=[224, 224, 3], nb_classes=8):
-        self.model = self.build_model(target_size=target_size, nb_classes=nb_classes)
-        # Print the detail of the model
-        self.model.summary()
-        # compile the model
-        self.model.compile(optimizer='adam',
-                           loss='categorical_crossentropy',
-                           metrics=['acc', top_k_categorical_accuracy])
-        plot_model(self.model, to_file='networks/model_ResNet-34.png')
-
-    def build_model(self, target_size, nb_classes=8):
-        inputs = Input(shape=target_size)
+    def build_model(self, input_shape, nb_classes=8):
+        inputs = Input(shape=input_shape)
         x = ZeroPadding2D((3, 3))(inputs)
         # Define the converlutional block 1
         x = Conv2D(64, kernel_size=(7, 7), strides=(2, 2), padding='valid')(x)

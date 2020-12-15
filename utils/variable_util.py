@@ -14,3 +14,4 @@ better_exceptions.hook()
 
 TRAIN = 'train'
 TEST = 'train'
+TEST_TIME = 'test_time'
