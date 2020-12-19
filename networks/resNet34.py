@@ -6,14 +6,13 @@
 @Description:
 '''
 import better_exceptions
+from keras_contrib import applications
 
 from networks.base_model import BaseModel
 
 better_exceptions.hook()
 
-from keras.layers import Conv2D, BatchNormalization, Dense, Flatten,\
-    MaxPooling2D, AveragePooling2D, ZeroPadding2D, Input, add
-from keras.models import Model
+from keras.layers import Conv2D, BatchNormalization, add
 
 
 class ResNet34(BaseModel):
@@ -60,36 +59,4 @@ class ResNet34(BaseModel):
             return add([inputs, conv2])
 
     def build_model(self, input_shape, nb_classes=8):
-        inputs = Input(shape=input_shape)
-        x = ZeroPadding2D((3, 3))(inputs)
-        # Define the converlutional block 1
-        x = Conv2D(64, kernel_size=(7, 7), strides=(2, 2), padding='valid')(x)
-        x = BatchNormalization(axis=1)(x)
-        x = MaxPooling2D(pool_size=(3, 3), strides=(2, 2), padding='same')(x)
-        # Define the converlutional block 2
-        x = self._conv_block(x, neuron_num=64, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=64, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=64, kernel_size=(3, 3), use_bias=True)
-        # Define the converlutional block 3
-        x = self._conv_block(x, neuron_num=128, kernel_size=(3, 3), use_bias=True, strides=(2, 2),
-                             with_conv_short_cut=True)
-        x = self._conv_block(x, neuron_num=128, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=128, kernel_size=(3, 3), use_bias=True)
-        # Define the converlutional block 4
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True, strides=(2, 2),
-                             with_conv_short_cut=True)
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=256, kernel_size=(3, 3), use_bias=True)
-        # Define the converltional block 5
-        x = self._conv_block(x, neuron_num=512, kernel_size=(3, 3), use_bias=True, strides=(2, 2),
-                             with_conv_short_cut=True)
-        x = self._conv_block(x, neuron_num=512, kernel_size=(3, 3), use_bias=True)
-        x = self._conv_block(x, neuron_num=512, kernel_size=(3, 3), use_bias=True)
-        x = AveragePooling2D(pool_size=(7, 7))(x)
-        x = Flatten()(x)
-        x = Dense(nb_classes, activation='softmax')(x)
-        model = Model(inputs=inputs, outputs=x)
-        return model
+        return applications.ResNet34(input_shape, nb_classes)

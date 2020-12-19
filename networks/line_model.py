@@ -23,7 +23,7 @@ class LineModel(BaseModel):
 
     def build_model(self, input_shape, nb_classes=8):
         model = Sequential()
-        model.add(Conv2D(filters=64, kernel_size=(3, 3), input_shape=(64, 64, 1), padding='same'))
+        model.add(Conv2D(filters=64, kernel_size=(3, 3), input_shape=input_shape, padding='same'))
         model.add(PReLU(alpha_initializer=Constant(value=0.25)))
         model.add(MaxPool2D(2))
 

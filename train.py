@@ -48,8 +48,10 @@ Configer.print_config(config)
 dataset = Dataset(
     config=config,
     shuffle=True,
+    feature_range=(0, 1),
     random_seed=config.random_seed,
 )
+
 config['nb_classes'] = dataset.nb_classes
 
 model = get_model(config)

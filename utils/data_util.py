@@ -9,10 +9,10 @@
 
 '''
 import better_exceptions
-import skimage
+import cv2
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from sklearn.utils import Bunch
 
 better_exceptions.hook()
@@ -41,7 +41,7 @@ class ResizeTransformer(BaseEstimator, TransformerMixin):
 
 class Dataset():
 
-    def __init__(self, config, shuffle=True, random_seed=100):
+    def __init__(self, config, shuffle=True, random_seed=100, feature_range=None):
         self.config = config
         self.data_dir = os.path.join(os.path.dirname(__file__), '../dataset/')
 
@@ -49,9 +49,12 @@ class Dataset():
         df = sklearn.utils.shuffle(df)
         images, labels = self.build_dataset(df, shuffle, random_seed)
 
+        images_transformers = []
+        if feature_range:
+            images_transformers.append(MinMaxScaler(feature_range=feature_range))
         images, labels, self.categories_ = self.transform_data(
             images,
-            [],
+            images_transformers,
             labels,
             [OneHotEncoder()]
         )
@@ -59,8 +62,6 @@ class Dataset():
         labels = labels.toarray()
 
         self.nb_classes = len(self.categories_)
-
-        # labels = to_categorical(labels.toarray(), self.nb_classes)
 
         Xs_train, Xs_test, ys_train, ys_test = train_test_split(images, labels, test_size=.01)
 
@@ -82,17 +83,17 @@ class Dataset():
             path = os.path.join(self.data_dir, 'data/')
             image_path = path + 'input_' + str(df.iloc[index][0]) + "_" + str(df.iloc[index][1]) + "_" + str(
                 df.iloc[index][2]) + ".jpg"
-            # image_arr = cv2.imread(image_path)
+
             if not os.path.exists(image_path):
                 continue
 
-            # image_arr = np.array(PIL.Image.open(image_path).convert('RGB'))
-            image_arr = skimage.io.imread(image_path)
-            image_arr = (image_arr - image_arr.min()) / (image_arr.max() - image_arr.min())
+            image = cv2.imread(image_path)
+            if image.shape[-1] == 1:
+                image_resized = cv2.resize(image.squeeze(), tuple(self.config.input_shape[:-1]))
+                image_arr = cv2.cvtColor(image_resized, cv2.COLOR_GRAY2RGB)
 
-            if 'input_shape' in self.config:
-                # image_arr = np.resize(image_arr, self.config.input_shape)
-                image_arr = skimage.transform.resize(image_arr, self.config.input_shape, mode='reflect')
+            else:
+                image_arr = np.resize(image, self.config.input_shape)
 
             images.append(image_arr)
             labels.append([df.iloc[index]['character']])
@@ -108,7 +109,10 @@ class Dataset():
     def transform_data(self, images, image_transformers, labels, label_transformers):
 
         for transform in image_transformers:
-            images = transform.fit_transform(images)
+            images_shape = images.shape
+            x = images.reshape(images_shape[0], -1)
+            x = transform.fit_transform(x)
+            images = x.reshape(images_shape)
 
         for index, transform in enumerate(label_transformers):
             labels = transform.fit_transform(labels)

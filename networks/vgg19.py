@@ -2,7 +2,7 @@
 '''
 @Author: jianbingxia 
 @Time: 2020/12/11 22:19
-@File: resNet34.py
+@File: vgg19.py
 @Description:
 '''
 import better_exceptions
@@ -16,13 +16,13 @@ from keras.models import Model
 import keras
 
 
-class VGG16(BaseModel):
+class VGG19(BaseModel):
 
     def __init__(self, input_shape, nb_classes):
-        super(VGG16, self).__init__(input_shape=input_shape, nb_classes=nb_classes)
+        super(VGG19, self).__init__(input_shape=input_shape, nb_classes=nb_classes)
 
     def build_model(self, input_shape=(48, 48, 3), nb_classes=8):
-        base_model = keras.applications.vgg16.VGG16(include_top=False, input_shape=input_shape)
+        base_model = keras.applications.vgg19.VGG19(include_top=False, input_shape=input_shape)
         for layer in base_model.layers:
             layer.trainable = False
 
